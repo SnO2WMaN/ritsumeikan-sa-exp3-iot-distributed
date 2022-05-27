@@ -1,4 +1,6 @@
 **/.direnv/
 **/.venv
 
-.vscode/settings.json
+**/.vscode/settings.json
+
+**/node_modules

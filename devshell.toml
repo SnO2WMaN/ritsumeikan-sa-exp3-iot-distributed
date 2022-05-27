@@ -1,2 +1,63 @@
 [devshell]
-packages = ["poetry"]
+packages = ["poetry", "deno", "dhall", "dhall-json"]
+
+# [[commands]]
+# name = "generate_points"
+# command = "poetry run python $PRJ_ROOT/gen_points.py > $PRJ_ROOT/edge/points.csv"
+
+[[commands]]
+name = "generate_dc"
+command = "cat $PRJ_ROOT/docker-compose.dhall | dhall-to-yaml > docker-compose.yml"
+
+[[commands]]
+name = "generate_deploy_dc"
+command = "cat $PRJ_ROOT/docker-compose.deploy.dhall | dhall-to-yaml > docker-compose.deploy.yml"
+
+# RabbitMQ (local)
+
+[[env]]
+name = "RABBITMQ_USERNAME"
+value = "user"
+
+[[env]]
+name = "RABBITMQ_PASSWORD"
+value = "password"
+
+[[env]]
+name = "RABBITMQ_HOST"
+value = "localhost"
+
+[[env]]
+name = "RABBITMQ_PORT"
+value = 5673
+
+[[env]]
+name = "RABBITMQ_URL"
+eval = "amqp://$RABBITMQ_USERNAME:$RABBITMQ_PASSWORD@$RABBITMQ_HOST:$RABBITMQ_PORT"
+
+# MongoDB (local)
+
+[[env]]
+name = "MONGO_USERNAME"
+value = "user"
+
+[[env]]
+name = "MONGO_PASSWORD"
+value = "pass"
+
+[[env]]
+name = "MONGO_DATABASE"
+value = "db"
+
+[[env]]
+name = "MONGO_HOST"
+value = "localhost"
+
+[[env]]
+name = "MONGO_PORT"
+value = 27017
+
+[[env]]
+name = "MONGO_URL"
+eval = "mongodb://$MONGO_USERNAME:$MONGO_PASSWORD@$MONGO_HOST:$MONGO_PORT/$MONGO_DATABASE?authSource=admin"
+# eval = "mongodb://$MONGO_USERNAME:$MONGO_PASSWORD@$MONGO_HOST:$MONGO_PORT"
