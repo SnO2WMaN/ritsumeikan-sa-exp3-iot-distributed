@@ -1,18 +1,33 @@
-let Compose =
-      https://raw.githubusercontent.com/SnO2WMaN/dhall-docker-compose/master/compose/v3/package.dhall
+let Compose = ./dhall/docker-compose/compose/v3/package.dhall
+
+let List/concat = https://prelude.dhall-lang.org/List/concat
+
+let List/map = https://prelude.dhall-lang.org/List/map
+
+let Map/Entry = https://prelude.dhall-lang.org/Map/Entry
 
 let rabbitmqService =
       Compose.Service::{
-      , image = Some "rabbitmq:3.9"
+      , image = Some "rabbitmq:3.9-management"
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { RABBITMQ_DEFAULT_USER = "user"
-                  , RABBITMQ_DEFAULT_PASS = "pass"
+                  { RABBITMQ_DEFAULT_USER = "$RABBITMQ_USERNAME"
+                  , RABBITMQ_DEFAULT_PASS = "$RABBITMQ_PASSWORD"
                   }
               )
           )
       , networks = Some (Compose.Networks.List [ "test" ])
+      , ports = Some
+          ( Compose.Ports.Long
+              [ { published = Compose.StringOrNumber.String "$RABBITMQ_PORT"
+                , target = Compose.StringOrNumber.Number 5672
+                }
+              , { published = Compose.StringOrNumber.Number 15672
+                , target = Compose.StringOrNumber.Number 15672
+                }
+              ]
+          )
       , healthcheck = Some Compose.Healthcheck::{
         , test = Some
             (Compose.StringOrList.String "rabbitmq-diagnostics -q ping")
@@ -28,13 +43,15 @@ let mongoService =
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { MONGO_INITDB_ROOT_USERNAME = "user"
-                  , MONGO_INITDB_ROOT_PASSWORD = "user"
-                  , MONGO_INITDB_DATABASE = "user"
+                  { MONGO_INITDB_ROOT_USERNAME =  "$MONGO_USERNAME"
+                  , MONGO_INITDB_ROOT_PASSWORD =  "$MONGO_PASSWORD"
+                  , MONGO_INITDB_DATABASE = "$MONGO_DATABASE"
                   }
               )
           )
       , networks = Some (Compose.Networks.List [ "test" ])
+      , ports = Some
+          (Compose.Ports.Long [ { published = Compose.StringOrNumber.String "$MONGO_PORT", target =  Compose.StringOrNumber.Number 27017 } ])
       , healthcheck = Some Compose.Healthcheck::{
         , test = Some
             ( Compose.StringOrList.String
