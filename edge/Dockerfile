@@ -1,21 +1,29 @@
 FROM denoland/deno:latest
 
-WORKDIR /workdir
+WORKDIR /app
 
-COPY mod.ts ./mod.ts
 COPY import_map.json ./import_map.json
+COPY *.ts ./
 
-CMD ["run","--import-map=./import_map.json", "--allow-net","--allow-env=RABBITMQ_URL","./mod.ts"]
+RUN deno cache --import-map=./import_map.json ./mod.ts
+
+CMD ["run","--import-map=./import_map.json", "--allow-net","--allow-env=EDGE_ID,RABBITMQ_URL","./mod.ts"]
+
+# RUN deno cache --import-map=./import_map.json ./mod.ts
+# CMD ["run","--import-map=./import_map.json", "--allow-net","--allow-env=EDGE_ID,RABBITMQ_URL","./mod.ts"]
 
 # RUN deno compile \
 #     --output ./edge \
-#     --allow-net --allow-env=RABBITMQ_URL \
+#     --import-map=./import_map.json \
+#     --allow-net --allow-env=EDGE_ID,RABBITMQ_URL \
 #     ./mod.ts
-
+# 
 # FROM alpine AS runner
 # 
-# WORKDIR /workdir
+# WORKDIR /app
 # 
-# COPY --from=builder /workdir/edge ./edge
+# COPY --from=builder /app/edge ./edge
 # 
-# ENTRYPOINT [""]
+# RUN ls -la
+# 
+# ENTRYPOINT [ "./edge" ]

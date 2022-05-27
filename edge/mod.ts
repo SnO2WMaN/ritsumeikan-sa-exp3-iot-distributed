@@ -2,7 +2,7 @@ import { connect as amqpConnect } from "amqp";
 
 import { bold, yellow } from "std/fmt/colors";
 
-const edgeId = crypto.randomUUID();
+const edgeId = Deno.env.get("EDGE_ID")!;
 
 const amqp = await amqpConnect(Deno.env.get("RABBITMQ_URL")!);
 const amqpChan = await amqp.openChannel();
