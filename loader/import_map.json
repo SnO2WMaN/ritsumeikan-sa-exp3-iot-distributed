@@ -1,0 +1,7 @@
+{
+    "imports": {
+        "amqp": "https://deno.land/x/amqp@v0.17.0/mod.ts",
+        "mongo": "https://deno.land/x/mongo@v0.29.1/mod.ts",
+        "std/fmt/colors": "https://deno.land/std@0.118.0/fmt/colors.ts"
+    }
+}
