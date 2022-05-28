@@ -48,14 +48,13 @@ let loaderServices =
                   ( Compose.Build.Object
                       { context = "./loader", dockerfile = "Dockerfile" }
                   )
-              , environment = Some
-                  ( Compose.ListOrDict.Dict
-                      ( toMap
-                          { RABBITMQ_URL = "amqp://user:pass@rabbitmq:5672"
-                          , MONGO_URL =
-                              "mongodb://user:pass@mongo:27017/db?authSource=admin"
-                          }
-                      )
+              , command = Some
+                  ( Compose.StringOrList.List
+                      [ "--rabbitmqUrl"
+                      , "amqp://user:pass@rabbitmq:5672"
+                      , "--mongoUrl"
+                      , "mongodb://user:pass@mongo:27017/db?authSource=admin"
+                      ]
                   )
               , networks = Some (Compose.Networks.List [ "test" ])
               , depends_on = Some
