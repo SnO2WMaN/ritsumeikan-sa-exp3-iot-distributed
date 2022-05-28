@@ -19,13 +19,13 @@ let edgeServices =
                   ( Compose.Build.Object
                       { context = "./edge", dockerfile = "Dockerfile" }
                   )
-              , environment = Some
-                  ( Compose.ListOrDict.Dict
-                      ( toMap
-                          { EDGE_ID = edge.id
-                          , RABBITMQ_URL = "amqp://user:pass@rabbitmq:5672"
-                          }
-                      )
+              , command = Some
+                  ( Compose.StringOrList.List
+                      [ "--id"
+                      , edge.id
+                      , "--rabbitmqUrl"
+                      , "amqp://user:pass@rabbitmq:5672"
+                      ]
                   )
               , networks = Some (Compose.Networks.List [ "test" ])
               , depends_on = Some
