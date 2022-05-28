@@ -8,7 +8,16 @@ let Loader
 
 let edges
     : List Edge
-    = [ { id = "14cb948d-5428-441f-a9a4-05f41ffe5271"
+    = [{ id = "ca36c3db-efbd-455b-bd59-d265af04a5cb"
+        , params = { floor = +5, min = 1019.20, max = 1019.70 }
+        }
+      , { id = "66f06b93-ef72-42b1-9411-f309326b85d3"
+        , params = { floor = +4, min = 1019.60, max = 1020.10 }
+        }
+      , { id = "1edb24a7-d41e-4c55-ba97-616243cd8aae"
+        , params = { floor = +4, min = 1019.65, max = 1020.15 }
+        }
+      , { id = "14cb948d-5428-441f-a9a4-05f41ffe5271"
         , params = { floor = +3, min = 1020.00, max = 1020.50 }
         }
       , { id = "01108f00-a3ed-4c00-bde8-494217ff05b8"
