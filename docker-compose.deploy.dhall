@@ -82,14 +82,44 @@ let loaderServices =
         )
         Nodes.loaders
 
+let webapiService =
+      Compose.Service::{
+      , build = Some
+          ( Compose.Build.Object
+              { context = "./web-api", dockerfile = "Dockerfile" }
+          )
+      , command = Some
+          ( Compose.StringOrList.List
+              [ "--mongoUrl"
+              , "mongodb://user:pass@mongo:27017/db?authSource=admin"
+              ]
+          )
+      , environment = Some
+          ( Compose.ListOrDict.Dict
+              (toMap { PORT = Compose.StringOrNumber.Number 8080 })
+          )
+      , networks = Some (Compose.Networks.List [ "test" ])
+      , ports = Some
+          ( Compose.Ports.Long
+              [ { published = Compose.StringOrNumber.Number 18080
+                , target = Compose.StringOrNumber.Number 8080
+                }
+              ]
+          )
+      , depends_on = Some
+          ( Compose.DependsOn.Long
+              (toMap { mongo.condition = "service_healthy" })
+          )
+      }
+
 let rabbitmqService =
       Compose.Service::{
       , image = Some "rabbitmq:3.9"
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { RABBITMQ_DEFAULT_USER = "user"
-                  , RABBITMQ_DEFAULT_PASS = "pass"
+                  { RABBITMQ_DEFAULT_USER = Compose.StringOrNumber.String "user"
+                  , RABBITMQ_DEFAULT_PASS = Compose.StringOrNumber.String "pass"
                   }
               )
           )
@@ -109,9 +139,11 @@ let mongoService =
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { MONGO_INITDB_ROOT_USERNAME = "user"
-                  , MONGO_INITDB_ROOT_PASSWORD = "pass"
-                  , MONGO_INITDB_DATABASE = "db"
+                  { MONGO_INITDB_ROOT_USERNAME =
+                      Compose.StringOrNumber.String "user"
+                  , MONGO_INITDB_ROOT_PASSWORD =
+                      Compose.StringOrNumber.String "pass"
+                  , MONGO_INITDB_DATABASE = Compose.StringOrNumber.String "db"
                   }
               )
           )
@@ -138,7 +170,11 @@ let services
     : Compose.Services
     = List/concat
         (Map/Entry Text Compose.Service.Type)
-        [ toMap { rabbitmq = rabbitmqService, mongo = mongoService }
+        [ toMap
+            { rabbitmq = rabbitmqService
+            , mongo = mongoService
+            , webapi = webapiService
+            }
         , edgeServices
         , loaderServices
         ]
