@@ -1,6 +1,6 @@
 let Compose = ./dhall/docker-compose/compose/v3/package.dhall
 
-let Nodes = ./nodes.deploy.dhall
+let Nodes = ./docker-compose.deploy.nodes.dhall
 
 let List/concat = https://prelude.dhall-lang.org/List/concat
 
