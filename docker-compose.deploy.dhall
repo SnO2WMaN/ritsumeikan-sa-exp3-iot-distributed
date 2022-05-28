@@ -8,6 +8,8 @@ let List/map = https://prelude.dhall-lang.org/List/map
 
 let Map/Entry = https://prelude.dhall-lang.org/Map/Entry
 
+let JSON = https://prelude.dhall-lang.org/JSON/package.dhall
+
 let edgeServices =
       List/map
         Nodes.Edge
@@ -21,10 +23,20 @@ let edgeServices =
                   )
               , command = Some
                   ( Compose.StringOrList.List
-                      [ "--id"
-                      , edge.id
-                      , "--rabbitmqUrl"
+                      [ "--rabbitmqUrl"
                       , "amqp://user:pass@rabbitmq:5672"
+                      , "--id"
+                      , edge.id
+                      , "--params"
+                      , JSON.renderCompact
+                          ( JSON.object
+                              ( toMap
+                                  { floor = JSON.integer edge.params.floor
+                                  , min = JSON.double edge.params.min
+                                  , max = JSON.double edge.params.max
+                                  }
+                              )
+                          )
                       ]
                   )
               , networks = Some (Compose.Networks.List [ "test" ])
