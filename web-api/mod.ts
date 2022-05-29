@@ -1,5 +1,6 @@
 import { MongoClient } from "mongo";
 import { Application, Router } from "oak";
+import { oakCors } from "cors";
 import { parse } from "std/flags";
 import { bold, green, red, yellow } from "std/fmt/colors";
 
@@ -24,56 +25,40 @@ router.get("/result", async (context) => {
   const now = Date.now();
   const result = await coll.aggregate<
     {
-      floor: number;
-      graph: {
-        avg: number;
-        min: number;
-        max: number;
-        period: string;
-        samples: number;
-        edges: string[];
-      }[];
+      period: string;
+      edges: { edges: string[]; floor: number };
+      plots: { floor: number; avg: number; min: number; max: number; period: string; samples: number }[];
     }
   >(
     [
       {
         $match: {
-          timestamp: { $gte: new Date(now - 6 * 3.6e6), $lte: new Date(now) },
+          timestamp: {
+            $gte: new Date(now - 1000 * 60 * 60),
+            $lte: new Date(now - 1000 * 60 * 5),
+          },
         },
       },
       {
         $group: {
-          "_id": {
-            floor: "$floor",
-            period: {
-              "$dateTrunc": { date: "$timestamp", unit: "minute", binSize: 5 },
-            },
-          },
-          avg: { "$avg": "$pressure" },
-          min: { "$min": "$pressure" },
-          max: { "$max": "$pressure" },
-          samples: { "$count": {} },
+          _id: { floor: "$floor", period: { $dateTrunc: { date: "$timestamp", unit: "second", binSize: 10 } } },
+          avg: { $avg: "$pressure" },
+          min: { $min: "$pressure" },
+          max: { $max: "$pressure" },
+          samples: { $count: {} },
           edges: { $addToSet: "$edge" },
         },
       },
-      { $sort: { "_id.period": -1 } },
+      { $sort: { "_id.floor": -1 } },
       {
         $group: {
-          _id: "$_id.floor",
-          graph: {
-            $push: {
-              period: "$_id.period",
-              samples: "$samples",
-              min: "$min",
-              max: "$max",
-              avg: "$avg",
-              edges: "$edges",
-            },
-          },
+          "_id": "$_id.period",
+          "edges": { $push: { floor: "$_id.floor", edges: "$edges" } },
+          "plots": { $push: { floor: "$_id.floor", min: "$min", max: "$max", avg: "$avg", samples: "$samples" } },
         },
       },
-      { $project: { _id: 0, floor: "$_id", graph: 1 } },
-      { $sort: { floor: 1 } },
+      { $project: { _id: 0, period: "$_id", edges: 1, plots: 1 } },
+      { $sort: { period: 1 } },
     ],
   )
     .toArray();
@@ -81,6 +66,7 @@ router.get("/result", async (context) => {
   context.response.body = result;
 });
 
+app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 app.addEventListener("listen", ({ hostname, port, serverType }) => {
