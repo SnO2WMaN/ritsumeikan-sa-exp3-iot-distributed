@@ -1,0 +1,14 @@
+node_modules/
+
+# log
+*.log
+
+# Output
+dist/
+
+# Environment
+.env.*.local
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
