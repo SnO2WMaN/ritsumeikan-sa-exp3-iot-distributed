@@ -12,15 +12,17 @@ let rabbitmqService =
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { RABBITMQ_DEFAULT_USER = "$RABBITMQ_USERNAME"
-                  , RABBITMQ_DEFAULT_PASS = "$RABBITMQ_PASSWORD"
+                  { RABBITMQ_DEFAULT_USER =
+                      Compose.StringOrNumber.String "\$RABBITMQ_USERNAME"
+                  , RABBITMQ_DEFAULT_PASS =
+                      Compose.StringOrNumber.String "\$RABBITMQ_PASSWORD"
                   }
               )
           )
       , networks = Some (Compose.Networks.List [ "test" ])
       , ports = Some
           ( Compose.Ports.Long
-              [ { published = Compose.StringOrNumber.String "$RABBITMQ_PORT"
+              [ { published = Compose.StringOrNumber.String "\$RABBITMQ_PORT"
                 , target = Compose.StringOrNumber.Number 5672
                 }
               , { published = Compose.StringOrNumber.Number 15672
@@ -43,15 +45,23 @@ let mongoService =
       , environment = Some
           ( Compose.ListOrDict.Dict
               ( toMap
-                  { MONGO_INITDB_ROOT_USERNAME =  "$MONGO_USERNAME"
-                  , MONGO_INITDB_ROOT_PASSWORD =  "$MONGO_PASSWORD"
-                  , MONGO_INITDB_DATABASE = "$MONGO_DATABASE"
+                  { MONGO_INITDB_ROOT_USERNAME =
+                      Compose.StringOrNumber.String "\$MONGO_USERNAME"
+                  , MONGO_INITDB_ROOT_PASSWORD =
+                      Compose.StringOrNumber.String "\$MONGO_PASSWORD"
+                  , MONGO_INITDB_DATABASE =
+                      Compose.StringOrNumber.String "\$MONGO_DATABASE"
                   }
               )
           )
       , networks = Some (Compose.Networks.List [ "test" ])
       , ports = Some
-          (Compose.Ports.Long [ { published = Compose.StringOrNumber.String "$MONGO_PORT", target =  Compose.StringOrNumber.Number 27017 } ])
+          ( Compose.Ports.Long
+              [ { published = Compose.StringOrNumber.String "\$MONGO_PORT"
+                , target = Compose.StringOrNumber.Number 27017
+                }
+              ]
+          )
       , healthcheck = Some Compose.Healthcheck::{
         , test = Some
             ( Compose.StringOrList.String
