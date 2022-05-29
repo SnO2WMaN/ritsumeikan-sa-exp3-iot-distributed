@@ -1,5 +1,5 @@
 [devshell]
-packages = ["poetry", "deno", "dhall", "dhall-json"]
+packages = ["poetry", "dprint","nodejs-16_x", "deno", "dhall", "dhall-json"]
 
 # [[commands]]
 # name = "generate_points"

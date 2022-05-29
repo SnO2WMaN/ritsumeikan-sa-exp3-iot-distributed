@@ -7,3 +7,5 @@
 
 **/docker-compose.yml
 **/docker-compose.*.yml
+
+*.code-workspace
