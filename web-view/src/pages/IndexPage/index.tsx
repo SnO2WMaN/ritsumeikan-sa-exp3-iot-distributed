@@ -54,6 +54,7 @@ export const Chart: React.FC<{ floors: string[]; plots: any[] }> = ({ plots, flo
           dataKey={floor}
           dot={false}
           isAnimationActive={false}
+          strokeWidth={2}
           stroke={chroma.mix("#bf616a", "#88c0d0", i / (length - 1), "hsl").hex()}
         >
         </Line>
