@@ -17,10 +17,10 @@ let edgeServices =
         ( \(edge : Nodes.Edge) ->
             { mapKey = "edge_" ++ edge.id
             , mapValue = Compose.Service::{
-              , build = Some
-                  ( Compose.Build.Object
-                      { context = "./edge", dockerfile = "Dockerfile" }
-                  )
+              , build = Some Compose.Build::{
+                , context = Some "./edge"
+                , dockerfile = Some "Dockerfile"
+                }
               , command = Some
                   ( Compose.StringOrList.List
                       [ "--rabbitmqUrl"
@@ -56,10 +56,10 @@ let loaderServices =
         ( \(loader : Nodes.Loader) ->
             { mapKey = "loader_" ++ loader.id
             , mapValue = Compose.Service::{
-              , build = Some
-                  ( Compose.Build.Object
-                      { context = "./loader", dockerfile = "Dockerfile" }
-                  )
+              , build = Some Compose.Build::{
+                , context = Some "./loader"
+                , dockerfile = Some "Dockerfile"
+                }
               , command = Some
                   ( Compose.StringOrList.List
                       [ "--rabbitmqUrl"
@@ -84,10 +84,10 @@ let loaderServices =
 
 let webapiService =
       Compose.Service::{
-      , build = Some
-          ( Compose.Build.Object
-              { context = "./web-api", dockerfile = "Dockerfile" }
-          )
+      , build = Some Compose.Build::{
+        , context = Some "./web-api"
+        , dockerfile = Some "Dockerfile"
+        }
       , command = Some
           ( Compose.StringOrList.List
               [ "--mongoUrl"
@@ -96,19 +96,47 @@ let webapiService =
           )
       , environment = Some
           ( Compose.ListOrDict.Dict
-              (toMap { PORT = Compose.StringOrNumber.Number 8080 })
+              (toMap { PORT = Compose.StringOrNumber.Number 4000 })
           )
       , networks = Some (Compose.Networks.List [ "test" ])
       , ports = Some
           ( Compose.Ports.Long
-              [ { published = Compose.StringOrNumber.Number 18080
-                , target = Compose.StringOrNumber.Number 8080
+              [ { published = Compose.StringOrNumber.Number 8081
+                , target = Compose.StringOrNumber.Number 4000
                 }
               ]
           )
       , depends_on = Some
           ( Compose.DependsOn.Long
               (toMap { mongo.condition = "service_healthy" })
+          )
+      }
+
+let webviewService =
+      Compose.Service::{
+      , build = Some Compose.Build::{
+        , context = Some "./web-view"
+        , dockerfile = Some "Dockerfile"
+        , args = Some
+            ( Compose.ListOrDict.Dict
+                ( toMap
+                    { vite_http_endpoint =
+                        Compose.StringOrNumber.String "http://localhost:8081"
+                    }
+                )
+            )
+        }
+      , networks = Some (Compose.Networks.List [ "test" ])
+      , ports = Some
+          ( Compose.Ports.Long
+              [ { published = Compose.StringOrNumber.Number 8080
+                , target = Compose.StringOrNumber.Number 80
+                }
+              ]
+          )
+      , depends_on = Some
+          ( Compose.DependsOn.Long
+              (toMap { webapi.condition = "service_started" })
           )
       }
 
@@ -174,6 +202,7 @@ let services
             { rabbitmq = rabbitmqService
             , mongo = mongoService
             , webapi = webapiService
+            , webview = webviewService
             }
         , edgeServices
         , loaderServices
