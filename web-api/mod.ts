@@ -35,7 +35,7 @@ router.get("/result", async (context) => {
         $match: {
           timestamp: {
             $gte: new Date(now - 1000 * 60 * 60),
-            $lte: new Date(now - 1000 * 60 * 5),
+            $lte: new Date(now - 1000 * 30),
           },
         },
       },
